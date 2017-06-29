@@ -1,0 +1,255 @@
+1. 代码规范
+
+typedef enum{
+	UserSex_Man,
+	UserSex_Woman
+}UserSex;
+
+@interface UserModel :NSObject
+
+
+@property(nonatomic, strong) NSString *name;
+@property (assign, nonatomic) int age;
+@property (nonatomic, assign) UserSex sex;
+
+-(id)initUserModelWithUserName: (NSString*)name withAge:(int)age;
+
+
+-(void)doLogIn;
+
+@end
+
+请纠错
+
+我的答案：
+typedef enum { // 1 enum后面加一个空格
+	UserSex_Man, // 12 UserSex_Man -> Man, UserSex_Woman -> Woman
+	UserSex_Woman 
+} UserSex; // 2 } 后面加一个空格
+
+@interface UserModel: NSObject // 3  ：和类型之类加一个空格
+                               // 4 减少一个空白行
+@property (nonatomic, strong) NSString *name; // 5 （ 前面加一个空格
+@property (nonatomic, assign) int age; // 6 nonatomic放在前面，保持风格统一
+@property (nonatomic, assign) UserSex sex;
+
+- (id)initUserModelWithUserName:(NSString *)name withAge:(int)age; // 7 （和-之间加空格, 8 NSString和*之间加空格, 9 ：和（之间去空格
+
+- (void)doLogIn; // 10 -和（之间加空格, 11 减少一个空白行
+
+@end
+
+* 2. Property 后面有哪些修饰符？
+我的答案：nonatomic/atomic, readonly/readwrite, strong/weak/assign/copy
+
+3. 什么情况下使用weak关键字，相比assign有什么不同？
+我的答案：1）weak表示弱引用，用来修饰对象类型的属性变量，当使用weak修饰属性变量时，表示类对象不会拥有这个属性变量，当没有任务强引用指向这个属性变量时，这个属性变量就会被释放，并且该属性变量会被置为nil。
+2）assign用来修饰基本类型的属性变量，不能修饰对象类型。当然也就不存在强引用还是弱引用的问题了。
+
+4. 怎么用copy关键字？
+
+5. 这个写法会有什么问题： @property (copy) NSMutableArray *array;
+
+6. 如何让自己的类用copy修饰符？如何重写带copy关键字的setter？
+
+7. @property 的本质是什么？ivar，getter，setter是如何生成并添加到这个类中的？
+
+8. @protocol和category中如何使用@property
+
+9. runtime 如何实现 weak 属性？
+
+* 10. weak属性需要在dealloc中置nil么？
+
+** 11. @synthesize和@dynamic分别有什么用？
+
+*** 12. ARC下， 不显示制定任何属性关键字时， 默认的关键字都有哪些？
+
+*** 13. 用@property声明的NSString（或NSArray， NSDictionary）经常用copy关键字，为什么？如果改用strong关键字，肯造成什么问题？
+
+*** 14. @synthesize合成实例变量的规则是什么？假如property名为foo，存在一个名为_foo的实例变量，那么还会自动合成新变量吗？
+
+***** 15. 在有了自动合成属性实例变量之后，@synthesize还有哪些使用场景？
+
+** 16. objc中向一个nil对象发送消息将会发生什么？
+
+*** 17. objc中向一个对象发送消息[obj foo]和objc_msgSend()函数之间有什么关系？
+
+*** 18. 什么时候会包unrecognized selector的异常？
+
+**** 19. 一个objc对象如何进行内存布局？（考虑有父类的情况）
+
+**** 20. 一个objc对象的isa的指针指向什么？有什么作用？
+
+**** 21. 下面的代码输出什么？
+
+@implementation Son: Father
+
+- (id)init 
+{
+	self = [super init];
+	if (self) {
+		NSLog(@"%@", NSStringFromClass([self class]));
+		NSLog(@"%@", NSStringFromClass([super class]));
+	}
+	return self;
+}
+
+@end
+
+**** 22. runtime如何通过selector找到相应的IMP地址？（分别考虑类方法和实例方法）
+
+**** 23. 使用runtime Associate方法关联的对象，需要在主对象dealloc的时候释放吗？
+
+***** 24. objc中的类方法和实例方法有什么本质区别和联系？
+
+***** 25. _objc_msgForward函数是做什么的，直接调用它将会发生什么？
+
+***** 26. runtime如何实现weak变量的自动置nil？
+
+***** 27. 能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？
+
+*** 28. runloop和线程有什么关系？
+
+*** 29. runloop的mode作用是什么？
+
+**** 30. 以 + scheduledTimerWithTimInterval...的方式触发的timer，在滑动页面的列表时，timer会暂停回调吗？为什么？如何解决？
+
+***** 31. 猜想runloop内部是如何实现的？
+
+* 32. objc使用什么机制管理对象内存的？
+
+**** 33. ARC通过什么方式帮助开发者管理内存？
+
+**** 34. 不手动制定autoreleasepool的前提下，一个autorelease对象在什么时刻释放？（比如在一个vc的viewDidLoad中创建）
+
+**** 35. BAD_ACCESS在什么情况下出现？
+
+**** 36. 苹果是如何实现autoreleasepool的？
+
+** 37. 使用block时什么情况下会发生引用循环，如何解决？
+
+** 38. 在block内如何修改block外部变量？
+
+*** 39. 使用系统的某些block api（如UIView的block版本写动画时），是否也考虑引用循环问题？
+
+** 40. GCD的队列（dispatch_queue_t)分哪两种类型？
+
+**** 41. 如何用GCD同步若干个异步调用？（如根据若干个url异步加载多张图片，然后在都下载完成后合成一张整图）
+
+**** 42. dispatch_barrier_async的作用是什么？
+
+***** 43. 苹果为什么要废弃dispatch_get_current_queue？
+
+***** 44. 一下代码运行结果如何？
+
+- (void)viewDidLoad
+{
+	[super viewDidLoad];
+	NSLog(@"1");
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		NSLog(@"2");
+	});
+	NSLog(@"3");
+}
+
+** 45. addObserver:forKeyPath:options:context: 各个参数的作用分别是什么？observer中需要实现的哪个方法才能获得KVO回调？
+
+*** 46. 如何手动触发一个value的KVO？
+
+*** 47. 若一个类有实例变量NSString *_foo，调用setValue:forKey:时，可以以foo还是_foo作为key？
+
+**** 48. KVC的keyPath中的集合运算符如何使用？
+
+**** 49. KVC和KVO的keyPath一定是属性吗？
+
+***** 50. 如何关闭默认的KVO的默认实现，并进入自定义的KVO实现？
+
+***** 51. apple用什么方式实现对一个对象的KVO？
+
+** 52. IBOutlet连出来的视图属性为什么可以被设置为weak？
+
+***** 53. IB中User Defined Runtime Attributes如何使用？
+
+*** 54. 如何调试BAD_ACCESS错误？
+
+*** 55. lldb（gdb）常用的调试命令？
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
