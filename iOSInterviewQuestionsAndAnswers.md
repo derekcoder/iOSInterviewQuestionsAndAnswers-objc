@@ -1,5 +1,6 @@
-1. 代码规范
+### 1. 代码规范
 
+```
 typedef enum{
 	UserSex_Man,
 	UserSex_Woman
@@ -18,59 +19,95 @@ typedef enum{
 -(void)doLogIn;
 
 @end
+```
 
 请纠错
 
 我的答案：
-typedef enum { // 1 enum后面加一个空格
-	UserSex_Man, // 12 UserSex_Man -> Man, UserSex_Woman -> Woman
-	UserSex_Woman 
-} UserSex; // 2 } 后面加一个空格
+```
+typedef enum(NSInteger, DRKGender) {
+	DRKGenderUnknown,
+	DRKGenderMale,
+	DRKGenderFemale,
+	DRKGenderNeuter
+};
 
-@interface UserModel: NSObject // 3  ：和类型之类加一个空格
-                               // 4 减少一个空白行
-@property (nonatomic, strong) NSString *name; // 5 （ 前面加一个空格
-@property (nonatomic, assign) int age; // 6 nonatomic放在前面，保持风格统一
-@property (nonatomic, assign) UserSex sex;
+@interface DRKUser : NSObject 
 
-- (id)initUserModelWithUserName:(NSString *)name withAge:(int)age; // 7 （和-之间加空格, 8 NSString和*之间加空格, 9 ：和（之间去空格
+@property (nonatomic, readonly, copy) NSString *name; 
+@property (nonatomic, readonly, assign) NSUInteger age;
+@property (nonatomic, readonly, assign) DRKGender gender;
 
-- (void)doLogIn; // 10 -和（之间加空格, 11 减少一个空白行
+- (instancetype)initWithName:(NSString *)name age:(NSUInteger)age gender:(DRKGender)gender;
++ (instancetype)userWithName:(NSString *)name age:(NSUInteger)age gender:(DRKGender)gender;
 
 @end
+```
 
-* 2. Property 后面有哪些修饰符？
-我的答案：nonatomic/atomic, readonly/readwrite, strong/weak/assign/copy
+### 2. Property 后面有哪些修饰符？
+nonatomic/atomic, readonly/readwrite, strong/weak/assign/copy
 
-3. 什么情况下使用weak关键字，相比assign有什么不同？
-我的答案：1）weak表示弱引用，用来修饰对象类型的属性变量，当使用weak修饰属性变量时，表示类对象不会拥有这个属性变量，当没有任务强引用指向这个属性变量时，这个属性变量就会被释放，并且该属性变量会被置为nil。
-2）assign用来修饰基本类型的属性变量，不能修饰对象类型。当然也就不存在强引用还是弱引用的问题了。
+### 3. 什么情况下使用weak关键字，相比assign有什么不同？
+什么情况下使用weak关键字？ 
 
-4. 怎么用copy关键字？
+- ARC中，weak表示弱引用。一般解决引用循环问题。比如：delegate
+- 还有一种情况IBOutlet控件属性一般也是用weak。这个是因为本身对其有过一个强引用了，没必要再强引用一次
 
-5. 这个写法会有什么问题： @property (copy) NSMutableArray *array;
+不同点：
+
+- weak 表示弱引用， 为其赋值时，setter方法既不添加一个强引用到新值上面，也不释放旧值。并且如果该属性所指向的对象没有任何强引用，该对象就会被释放，同事属性值也会被置为nil。assign用来修饰纯量类型（scalar type， 比如NSInteger）的属性变量，不能修饰对象类型。当然也就不存在强引用还是弱引用的问题了
+
+### 4. 怎么用copy关键字？
+
+- 一般用于对NSArray，NSString，NSDictionary的属性变量的修饰，是因为他们有对应的可变类型：NSMutableArray，NSMutableString，NSMutabelDictionary
+- 当定义一个属性变量指向block时，也应该使用copy修饰符
+
+### 5. 这个写法会有什么问题： @property (copy) NSMutableArray *array;
+
+回答：a. app crash, array的实际类型是NSArray，而不是NSMutableArray，这时候如果你对array调用只属于NSMutableArray的方法（比如添加元素），app就会crash掉。
+     b. 使用了atomic属性会影响性能
 
 6. 如何让自己的类用copy修饰符？如何重写带copy关键字的setter？
+回答： 1）a. 声明该类遵从NSCopying protocol
+         B. 实现protocol里面的方法： - (id)copyWithZone:(NSZone *)zone;
+2）
+- (void)setArray:(NSArray *)array
+{
+	_array = [array copy];
+}
 
 7. @property 的本质是什么？ivar，getter，setter是如何生成并添加到这个类中的？
+回答：1）property的本质是定义一个类变量，并且声称getter和setter方法
+2）ivar
+3）getter和setter是编译器根据property的定义自动生成的
 
-8. @protocol和category中如何使用@property
+8. @protocol和category中如何使用@property？
+回答：1) @protocol中使用@property，只是声明两个方法：setter和getter，不会生成变量
+2）category里面使用@property同样只是声明两个方法：setter和getter，不会生成变量，需要自己实现这两个方法
 
 9. runtime 如何实现 weak 属性？
+回答：
 
 * 10. weak属性需要在dealloc中置nil么？
+回答：不需要，weak属性变量会在没有任何强引用时自动置nil
 
 ** 11. @synthesize和@dynamic分别有什么用？
+回答：
 
 *** 12. ARC下， 不显示制定任何属性关键字时， 默认的关键字都有哪些？
+回答： 1）对于对象类型属性：atomic，readwrite，strong
+2） 对于非对象类型的属性：atomic，readwrite，assign
 
 *** 13. 用@property声明的NSString（或NSArray， NSDictionary）经常用copy关键字，为什么？如果改用strong关键字，肯造成什么问题？
+1） 因为NSString，NSArray和NSDictionary都有可变类型的子类NSMutableString，NSMutableArray，和NSMutableDictionary，如果你想要你的属性不受赋的值的变化而变化的话，你就必须使用copy修饰符，因为copy修饰符会在赋值时调用copy方法，如果赋来的值可变类型的，就会产生一个对应的不变类型的新值，然后再赋给属性变量
+2）如果使用strong的话，可能的问题是你的属性变量的值会随着你赋来的值的变化而变化
 
 *** 14. @synthesize合成实例变量的规则是什么？假如property名为foo，存在一个名为_foo的实例变量，那么还会自动合成新变量吗？
 
 ***** 15. 在有了自动合成属性实例变量之后，@synthesize还有哪些使用场景？
 
 ** 16. objc中向一个nil对象发送消息将会发生什么？
+回答：不会发生任何事
 
 *** 17. objc中向一个对象发送消息[obj foo]和objc_msgSend()函数之间有什么关系？
 
@@ -80,7 +117,7 @@ typedef enum { // 1 enum后面加一个空格
 
 **** 20. 一个objc对象的isa的指针指向什么？有什么作用？
 
-**** 21. 下面的代码输出什么？
+**** 21. 下面的代码输出什么？ --
 
 @implementation Son: Father
 
@@ -95,6 +132,8 @@ typedef enum { // 1 enum后面加一个空格
 }
 
 @end
+回答：Son 
+     Son
 
 **** 22. runtime如何通过selector找到相应的IMP地址？（分别考虑类方法和实例方法）
 

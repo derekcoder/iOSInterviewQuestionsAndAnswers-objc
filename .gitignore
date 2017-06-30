@@ -1,5 +1,5 @@
 
-# Created by https://www.gitignore.io/api/macos
+# Created by https://www.gitignore.io/api/macos,objctive-c
 
 ### macOS ###
 *.DS_Store
@@ -28,4 +28,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# End of https://www.gitignore.io/api/macos
+#!! ERROR: objctive-c is undefined. Use list command to see defined gitignore types !!#
+
+# End of https://www.gitignore.io/api/macos,objctive-c
